@@ -1,20 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { InkPen } from "@/components/ui/InkPen";
 import { HeroAbstractField } from "@/components/ui/HeroAbstractField";
 import { LiquidLogo } from "@/components/ui/LiquidLogo";
 import { useHeroThemeMorph } from "@/hooks/useHeroThemeMorph";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { HERO_THEMES } from "@/lib/heroThemes";
 import { HERO } from "@/lib/constants";
-
-const textSwap = {
-  initial: { opacity: 0, y: 10, filter: "blur(8px)" },
-  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -8, filter: "blur(6px)" },
-  transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-};
 
 function layerSize(theme: { id: string; atmosphereSize?: string; abstractSize?: string }, layer: "atmosphere" | "abstract") {
   if (layer === "atmosphere" && theme.atmosphereSize) return theme.atmosphereSize;
@@ -31,7 +24,7 @@ function clamp01(v: number) {
 }
 
 export function Hero() {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { snapshot, visualStateRef } = useHeroThemeMorph(prefersReducedMotion);
   const { theme, themeIndex, morphProgress } = snapshot;
   const isMorphing = morphProgress > 0 && morphProgress < 1;
@@ -155,84 +148,71 @@ export function Hero() {
 
       <div className="hero-exit-veil pointer-events-none absolute inset-x-0 bottom-0 z-[8]" aria-hidden="true" />
 
-      <motion.div
+      <div
         className="hero-theme-copy pointer-events-none relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center"
-        animate={
-          prefersReducedMotion
+        style={{
+          transform: prefersReducedMotion
             ? undefined
-            : {
-                scale: isMorphing ? 1 + Math.sin(morphProgress * Math.PI) * 0.012 : 1,
-                rotate: isMorphing ? Math.sin(morphProgress * Math.PI) * 0.4 : 0,
-              }
-        }
-        transition={{ duration: 0.3 }}
+            : `scale(${isMorphing ? 1 + Math.sin(morphProgress * Math.PI) * 0.012 : 1}) rotate(${
+                isMorphing ? Math.sin(morphProgress * Math.PI) * 0.4 : 0
+              }deg)`,
+          transition: prefersReducedMotion ? undefined : "transform 0.3s ease",
+        }}
       >
         <div className="pointer-events-none w-fit">
           <LiquidLogo logoFilter={snapshot.logoFilter} heroTone={theme.heroTone} />
         </div>
 
         <div className="mb-5 min-h-[1.5rem] w-full">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={`tagline-${themeIndex}`}
-              className="hero-theme-tagline text-[11px] font-medium tracking-[0.32em] uppercase md:text-xs"
-              style={{ color: snapshot.text }}
-              {...(prefersReducedMotion ? {} : textSwap)}
-            >
-              {HERO.tagline}
-            </motion.p>
-          </AnimatePresence>
+          <p
+            key={`tagline-${themeIndex}`}
+            className="hero-copy-swap hero-theme-tagline text-[11px] font-medium tracking-[0.32em] uppercase md:text-xs"
+            style={{ color: snapshot.text }}
+          >
+            {HERO.tagline}
+          </p>
         </div>
 
         <div className="mb-12 min-h-[4.5rem] w-full max-w-lg">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={`subtext-${themeIndex}`}
-              className="hero-theme-body text-base leading-relaxed md:text-lg"
-              style={{ color: snapshot.textMuted }}
-              {...(prefersReducedMotion ? {} : { ...textSwap, transition: { ...textSwap.transition, delay: 0.04 } })}
-            >
-              {HERO.subtext}
-            </motion.p>
-          </AnimatePresence>
+          <p
+            key={`subtext-${themeIndex}`}
+            className="hero-copy-swap hero-copy-swap--delay-1 hero-theme-body text-base leading-relaxed md:text-lg"
+            style={{ color: snapshot.textMuted }}
+          >
+            {HERO.subtext}
+          </p>
         </div>
 
         <div className="pointer-events-auto min-h-[3rem]">
-          <AnimatePresence mode="wait">
-            <motion.a
-              key={`cta-${themeIndex}`}
-              href="#join"
-              className="hero-theme-cta hero-cta inline-flex items-center justify-center px-8 py-3.5 text-xs font-medium tracking-[0.2em] uppercase transition-colors duration-500"
-              style={{
-                backgroundColor: snapshot.ctaBg,
-                color: snapshot.ctaText,
-              }}
-              {...(prefersReducedMotion ? {} : { ...textSwap, transition: { ...textSwap.transition, delay: 0.06 } })}
-              onMouseEnter={(event) => {
-                event.currentTarget.style.backgroundColor = snapshot.ctaHoverBg;
-              }}
-              onMouseLeave={(event) => {
-                event.currentTarget.style.backgroundColor = snapshot.ctaBg;
-              }}
-            >
-              {HERO.cta}
-            </motion.a>
-          </AnimatePresence>
+          <a
+            key={`cta-${themeIndex}`}
+            href="#join"
+            className="hero-copy-swap hero-copy-swap--delay-2 hero-theme-cta hero-cta inline-flex items-center justify-center px-8 py-3.5 text-xs font-medium tracking-[0.2em] uppercase transition-colors duration-500"
+            style={{
+              backgroundColor: snapshot.ctaBg,
+              color: snapshot.ctaText,
+            }}
+            onMouseEnter={(event) => {
+              event.currentTarget.style.backgroundColor = snapshot.ctaHoverBg;
+            }}
+            onMouseLeave={(event) => {
+              event.currentTarget.style.backgroundColor = snapshot.ctaBg;
+            }}
+          >
+            {HERO.cta}
+          </a>
         </div>
 
         <div className="mt-14 min-h-[1rem] w-full">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={`hint-${themeIndex}`}
-              className="hero-theme-hint mt-0 text-[10px] tracking-[0.28em] uppercase"
-              style={{ color: snapshot.textFaint }}
-              {...(prefersReducedMotion ? {} : { ...textSwap, transition: { ...textSwap.transition, delay: 0.08 } })}
-            >
-              click or drag to draw — ink fades
-            </motion.p>
-          </AnimatePresence>
+          <p
+            key={`hint-${themeIndex}`}
+            className="hero-copy-swap hero-copy-swap--delay-3 hero-theme-hint mt-0 text-[10px] tracking-[0.28em] uppercase"
+            style={{ color: snapshot.textFaint }}
+          >
+            click or drag to draw — ink fades
+          </p>
         </div>
-      </motion.div>
+      </div>
 
       {!prefersReducedMotion && (
         <div

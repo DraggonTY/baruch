@@ -90,6 +90,7 @@ function getMotif(visualStateRef: RefObject<HeroVisualState>): ThemeMotif {
 
 const STROKE_LIFETIME_MS = 6500;
 const TREE_RETIRE_MS = 1200;
+const HERO_CANVAS_DPR_CAP = 1.5;
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
@@ -165,7 +166,7 @@ export function InkPen({ visualStateRef }: InkPenProps) {
       const parent = canvas.parentElement;
       if (!parent) return;
 
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, HERO_CANVAS_DPR_CAP);
       const rect = parent.getBoundingClientRect();
       width = rect.width;
       height = rect.height;

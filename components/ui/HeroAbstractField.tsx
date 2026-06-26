@@ -23,6 +23,9 @@ type HeroAbstractFieldProps = {
   patternIndex: number;
 };
 
+const HERO_CANVAS_DPR_CAP = 1.5;
+const ABSTRACT_FRAME_INTERVAL_MS = 1000 / 30;
+
 type MotifCtx = {
   ctx: CanvasRenderingContext2D;
   width: number;
@@ -548,12 +551,13 @@ export function HeroAbstractField({ visualStateRef, patternIndex }: HeroAbstract
     let dpr = 1;
     let isVisible = true;
     let isPageVisible = document.visibilityState === "visible";
+    let lastDrawAt = 0;
 
     const resize = () => {
       const parent = canvas.parentElement;
       if (!parent) return;
 
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, HERO_CANVAS_DPR_CAP);
       const rect = parent.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
@@ -605,6 +609,12 @@ export function HeroAbstractField({ visualStateRef, patternIndex }: HeroAbstract
     const render = (now: number) => {
       frameRef.current = 0;
       if (!shouldAnimate()) return;
+
+      if (now - lastDrawAt < ABSTRACT_FRAME_INTERVAL_MS) {
+        queueFrame();
+        return;
+      }
+      lastDrawAt = now;
 
       const visual = visualStateRef.current;
       if (!visual) {
