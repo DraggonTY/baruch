@@ -127,9 +127,11 @@ export function Hero() {
         aria-hidden="true"
       />
 
-      <div className="hero-exit-fade-layer absolute inset-0 z-[3]">
-        <HeroAbstractField visualStateRef={visualStateRef} patternIndex={themeIndex} />
-      </div>
+      {theme.id !== "water" && (
+        <div className="hero-exit-fade-layer absolute inset-0 z-[3]">
+          <HeroAbstractField visualStateRef={visualStateRef} patternIndex={themeIndex} />
+        </div>
+      )}
 
       <div
         className={`hero-theme-flash pointer-events-none absolute inset-0 z-[4] ${isMorphing ? "hero-theme-flash--active" : ""}`}

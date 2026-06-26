@@ -91,6 +91,7 @@ function getMotif(visualStateRef: RefObject<HeroVisualState>): ThemeMotif {
 const STROKE_LIFETIME_MS = 6500;
 const TREE_RETIRE_MS = 1200;
 const HERO_CANVAS_DPR_CAP = 1.5;
+const WATER_FRAME_INTERVAL_MS = 1000 / 30;
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
@@ -161,6 +162,7 @@ export function InkPen({ visualStateRef }: InkPenProps) {
     let lastWaterHoverAt = 0;
     let isVisible = true;
     let isPageVisible = document.visibilityState === "visible";
+    let lastWaterFrameAt = 0;
 
     const resize = () => {
       const parent = canvas.parentElement;
@@ -667,6 +669,12 @@ export function InkPen({ visualStateRef }: InkPenProps) {
       }
 
       if (motif === "water" && waterSimRef.current) {
+        if (now - lastWaterFrameAt < WATER_FRAME_INTERVAL_MS) {
+          queueFrame();
+          return;
+        }
+        lastWaterFrameAt = now;
+
         const sim = waterSimRef.current;
         if (!paintedRetiredTrees) {
           ctx.clearRect(0, 0, width, height);

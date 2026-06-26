@@ -37,7 +37,7 @@ export type WaterSim = {
 };
 
 export function createWaterSim(width: number, height: number): WaterSim {
-  const scale = width > 1280 ? 4 : 3;
+  const scale = width > 1280 ? 6 : width > 760 ? 5 : 4;
   const cols = Math.max(48, Math.ceil(width / scale) + 2);
   const rows = Math.max(48, Math.ceil(height / scale) + 2);
   const renderCanvas = document.createElement("canvas");
@@ -107,7 +107,7 @@ function spawnSplash(sim: WaterSim, x: number, y: number, vx: number, vy: number
   const speed = Math.hypot(vx, vy);
   if (speed < 2 && strength < 2) return;
 
-  const count = Math.min(16, Math.floor(4 + speed * 0.6 + strength * 2));
+  const count = Math.min(10, Math.floor(3 + speed * 0.45 + strength * 1.5));
   const now = performance.now();
 
   for (let i = 0; i < count; i++) {
@@ -124,8 +124,8 @@ function spawnSplash(sim: WaterSim, x: number, y: number, vx: number, vy: number
     });
   }
 
-  if (sim.droplets.length > 80) {
-    sim.droplets.splice(0, sim.droplets.length - 80);
+  if (sim.droplets.length > 48) {
+    sim.droplets.splice(0, sim.droplets.length - 48);
   }
 }
 
@@ -140,7 +140,7 @@ export function disturbWater(
   const gx = Math.floor(x / sim.scale);
   const gy = Math.floor(y / sim.scale);
   const speed = Math.hypot(vx, vy);
-  const radius = Math.min(28, 8 + speed * 0.45 + strength * 2);
+  const radius = Math.min(20, 7 + speed * 0.32 + strength * 1.6);
   const cols = sim.cols;
   const rows = sim.rows;
 
@@ -187,7 +187,7 @@ export function stepWater(sim: WaterSim, now: number) {
   sim.ambientPhase = now * 0.00035;
   if (sim.activity > 0) sim.activity -= 1;
 
-  const stepCount = sim.activity > 8 ? 2 : 1;
+  const stepCount = 1;
   let src = sim.buffer1;
   let dst = sim.buffer2;
 
@@ -251,12 +251,12 @@ function drawWaterBody(
 
   ctx.save();
   ctx.globalCompositeOperation = "soft-light";
-  const causticCount = 4;
+  const causticCount = 2;
   for (let c = 0; c < causticCount; c++) {
     const phase = now * 0.0004 + c * 1.7;
-    const cx = width * (0.15 + c * 0.14) + Math.sin(phase) * 40;
+    const cx = width * (0.22 + c * 0.26) + Math.sin(phase) * 34;
     const cy = height * (0.35 + (c % 3) * 0.18) + Math.cos(phase * 1.3) * 30;
-    const r = 80 + c * 35;
+    const r = 96 + c * 44;
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
     g.addColorStop(0, rgba(palette.mid, 0.05));
     g.addColorStop(0.45, rgba(palette.deep, 0.03));
@@ -272,11 +272,11 @@ function drawWaterBody(
   ctx.globalCompositeOperation = "overlay";
   ctx.strokeStyle = rgba(palette.deep, 0.05);
   ctx.lineWidth = 1;
-  for (let y = height * 0.15; y < height; y += 36) {
+  for (let y = height * 0.15; y < height; y += 72) {
     const wave = Math.sin(y * 0.02 + now * 0.001) * 6;
     ctx.beginPath();
     ctx.moveTo(0, y + wave);
-    for (let x = 0; x <= width; x += 32) {
+    for (let x = 0; x <= width; x += 64) {
       ctx.lineTo(x, y + Math.sin(x * 0.008 + now * 0.0012 + y * 0.01) * 5 + wave);
     }
     ctx.stroke();
@@ -392,10 +392,10 @@ export function renderWater(
     ctx.globalCompositeOperation = "soft-light";
     ctx.fillStyle = rgba(palette.highlight, 0.2);
     let highlights = 0;
-    const highlightCap = 96;
+    const highlightCap = 48;
 
-    for (let y = 2; y < rows - 2; y += 3) {
-      for (let x = 2; x < cols - 2; x += 3) {
+    for (let y = 2; y < rows - 2; y += 4) {
+      for (let x = 2; x < cols - 2; x += 4) {
         if (highlights >= highlightCap) break;
         const i = y * w + x;
         const h = buf[i];
