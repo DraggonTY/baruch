@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BARUCH — Pre-Launch Website
+
+A pre-launch marketing site for BARUCH, an independent fragrance house.
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- Framer Motion
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Email Waitlist (Stub)
 
-To learn more about Next.js, take a look at the following resources:
+The join form posts to `POST /api/waitlist`. The current implementation logs signups to the server console.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To wire a real provider, update [`lib/waitlist.ts`](lib/waitlist.ts):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Provider | Env vars |
+|----------|----------|
+| Supabase | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Resend Audiences | `RESEND_API_KEY` |
+| Mailchimp | `MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID` |
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deploy to [Vercel](https://vercel.com):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push this repo to GitHub
+2. Import the project in Vercel
+3. Deploy — no env vars required for the stub waitlist
+
+## Project Structure
+
+```
+app/              # Routes, layout, API
+components/       # UI, sections, layout
+lib/              # Copy constants, waitlist handler
+public/           # Logo, lab images, OG image
+```
+
+## Replacing Lab Images
+
+Placeholder images live in `public/images/lab/`. Replace with brand photography when ready and update paths in `lib/constants.ts` if needed.
